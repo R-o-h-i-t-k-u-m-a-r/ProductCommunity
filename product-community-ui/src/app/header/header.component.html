@@ -1,0 +1,147 @@
+<nav
+  [class.shadow]="hasScrolled"
+  class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm"
+>
+  <div class="container-fluid">
+    <a *ngIf="!isAdminRole()" class="navbar-brand fw-bold" routerLink="/"
+      >ProductCommunity</a
+    >
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item" *ngIf="isAdminRole()">
+          <a class="navbar-brand fw-bold" routerLink="/admin"
+            >Admin Dashboard</a
+          >
+        </li>
+        <li class="nav-item" *ngIf="isUserRole()">
+          <a class="nav-link fw-bold" routerLink="/user/cart">My Cart</a>
+        </li>
+        <li class="nav-item" *ngIf="isUserRole()">
+          <a class="nav-link fw-bold" routerLink="/user/order">My Orders</a>
+        </li>
+        <li class="nav-item" *ngIf="isAdminRole()">
+          <a
+            class="nav-link fw-bold"
+            routerLink="/admin/products/add"
+            [state]="{ mode: 'add' }"
+          >
+            Add Product
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isAdminRole()">
+          <a class="nav-link fw-bold" routerLink="/admin/category"
+            >Categories</a
+          >
+        </li>
+
+        <li class="nav-item" *ngIf="isAdminRole()">
+          <a class="nav-link fw-bold" routerLink="/order-info">Order Info</a>
+        </li>
+      </ul>
+
+      <div class="dropdown" *ngIf="isLogged()">
+        <button
+          class="btn btn-sm d-flex align-items-center gap-1 dropdown-toggle"
+          id="userDropdown"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          style="padding: 4px 8px"
+        >
+          <!-- Avatar Circle -->
+          <div
+            class="bg-light text-primary fw-bold d-flex align-items-center justify-content-center"
+            style="
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              font-size: 1rem;
+              overflow: hidden;
+            "
+          >
+            <!-- {{ getUserName().charAt(0).toUpperCase() }} -->
+
+            <ng-container *ngIf="avatarUrl; else fallbackInitial">
+              <img
+                [src]="'http://localhost:9191' + avatarUrl"
+                alt="avatar"
+                style="
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  border-radius: 50%;
+                "
+              />
+            </ng-container>
+
+            <ng-template #fallbackInitial>
+              {{ getUserName().charAt(0).toUpperCase() }}
+            </ng-template>
+          </div>
+
+          <!-- Caret is part of dropdown-toggle, no need for extra icon -->
+        </button>
+
+        <ul
+          class="dropdown-menu dropdown-menu-end"
+          aria-labelledby="userDropdown"
+        >
+          <li>
+            <h6 class="dropdown-header">👋 {{ getUserName() }}</h6>
+          </li>
+          <li *ngIf="isAdminRole()">
+            <hr *ngIf="isAdminRole()" class="dropdown-divider" />
+          </li>
+          <li *ngIf="isAdminRole()">
+            <a
+              *ngIf="isAdminRole()"
+              class="dropdown-item"
+              routerLink="/notification"
+              >Notification</a
+            >
+          </li>
+          <li *ngIf="isAdminRole()">
+            <hr *ngIf="isAdminRole()" class="dropdown-divider" />
+          </li>
+          <li>
+            <a class="dropdown-item" routerLink="/profile">Profile Info</a>
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <a class="dropdown-item text-danger" (click)="logout()">Logout</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button
+          *ngIf="!isLogged()"
+          class="btn btn-outline-light btn-sm"
+          routerLink="/register"
+        >
+          Sign Up
+        </button>
+        <button
+          *ngIf="!isLogged()"
+          class="btn btn-outline-light btn-sm"
+          routerLink="/login"
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>

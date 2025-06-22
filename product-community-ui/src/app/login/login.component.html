@@ -1,0 +1,82 @@
+<div class="container pt-5">
+  <div class="card m-auto p-4 w-50 border-0 shadow">
+    <h2 class="text-center mb-4">Login</h2>
+
+    <!-- Error message with fade animation -->
+    <div *ngIf="errorMessage" class="alert alert-danger fade-in" [@fadeInOut]>
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="clearError()"></button>
+    </div>
+
+    <form
+      #userForm="ngForm"
+      (ngSubmit)="addDetails(userForm); userForm.resetForm()"
+    >
+      <div class="mb-3">
+        <label for="userName" class="form-label">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          id="userName"
+          name="userName"
+          placeholder="Enter your username"
+          ngModel
+          required
+          #username="ngModel"
+        />
+        <div *ngIf="username.touched && username.invalid" class="text-danger">
+          Username is required
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          ngModel
+          required
+          minlength="1"
+          maxlength="50"
+          #password="ngModel"
+        />
+
+        <div *ngIf="password.touched && password.invalid" class="text-danger">
+          <div *ngIf="password.errors?.['required']">Password is required</div>
+          <div *ngIf="password.errors?.['minlength']">
+            Password must be at least 5 characters
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="userForm.invalid || isLoading"
+      >
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading">
+          <span
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          Logging in...
+        </span>
+      </button>
+    </form>
+
+    <div class="d-flex justify-content-between mb-4">
+      <a routerLink="/forgot-password" class="text-decoration-none small"
+        >Forgot password?</a
+      >
+      <a routerLink="/register" class="text-decoration-none small"
+        >Don't have an account?</a
+      >
+    </div>
+  </div>
+</div>

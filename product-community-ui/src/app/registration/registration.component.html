@@ -1,0 +1,150 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <mat-card class="shadow-sm">
+        <mat-card-header class="bg-primary text-white">
+          <mat-card-title>Create an Account</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="p-4">
+          <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName" required />
+                  <mat-error
+                    *ngIf="
+                      registrationForm.get('firstName')?.hasError('required')
+                    "
+                  >
+                    First name is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName" required />
+                  <mat-error
+                    *ngIf="
+                      registrationForm.get('lastName')?.hasError('required')
+                    "
+                  >
+                    Last name is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Username</mat-label>
+                <input matInput formControlName="userName" required />
+                <mat-error
+                  *ngIf="registrationForm.get('userName')?.hasError('required')"
+                >
+                  Username is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="mb-4">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Password</mat-label>
+                <input
+                  matInput
+                  formControlName="password"
+                  [type]="hidePassword ? 'password' : 'text'"
+                  required
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  (click)="hidePassword = !hidePassword"
+                >
+                  <mat-icon>{{
+                    hidePassword ? "visibility_off" : "visibility"
+                  }}</mat-icon>
+                </button>
+                <mat-error
+                  *ngIf="registrationForm.get('password')?.hasError('required')"
+                >
+                  Password is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    registrationForm.get('password')?.hasError('minlength')
+                  "
+                >
+                  Password must be at least 6 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="d-grid mb-4">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="isLoading || registrationForm.invalid"
+              >
+                <span *ngIf="!isLoading">Register</span>
+                <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+              </button>
+            </div>
+          </form>
+
+          <div class="social-login text-center">
+            <div class="or-divider">
+              <span>Or login with</span>
+            </div>
+            <div class="social-buttons">
+              <button
+                mat-icon-button
+                class="google"
+                (click)="startGoogleSignIn()"
+                [disabled]="isLoading"
+                matTooltip="Sign in with Google"
+              >
+                <img src="assets/images/google-logo.svg" alt="Google" />
+              </button>
+              <button
+                mat-icon-button
+                class="github"
+                (click)="startGithubSignIn()"
+                [disabled]="isLoading"
+                matTooltip="Sign in with GitHub"
+              >
+                <img src="assets/images/github-logo.svg" alt="GitHub" />
+              </button>
+              <button
+                mat-icon-button
+                class="facebook"
+                (click)="startFacebookSignIn()"
+                [disabled]="isLoading"
+                matTooltip="Sign in with Facebook"
+              >
+                <img src="assets/images/facebook-logo.svg" alt="Facebook" />
+              </button>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <p>
+              Already have an account?
+              <button
+                style="border: 0"
+                (click)="navigateToLogin()"
+                type="button"
+              >
+                <a class="text-primary">Sign in</a>
+              </button>
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
