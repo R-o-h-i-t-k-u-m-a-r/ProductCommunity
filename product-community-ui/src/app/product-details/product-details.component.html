@@ -1,0 +1,205 @@
+<div class="container py-4">
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="mt-2">Loading product details...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Product Details -->
+  <div *ngIf="product && !isLoading">
+    <div class="product-details-container">
+      <!-- Product Images (Left Side) -->
+      <div class="product-images-container">
+        <div class="main-image-container">
+          <img
+            [src]="'http://localhost:9191' + product.images[0].downloadUrl"
+            [alt]="product.name"
+            class="main-product-image"
+          />
+        </div>
+      </div>
+
+      <!-- Product Information (Right Side) -->
+      <div class="product-info">
+        <h1 class="product-name">{{ product.name }}</h1>
+        <h3 class="product-brand">{{ product.brand }}</h3>
+        <p class="product-code">Product Code: {{ product.code }}</p>
+
+        <!-- Rating Section -->
+        <div
+          class="rating-section"
+          *ngIf="
+            product.averageRating !== undefined &&
+            product.averageRating !== null
+          "
+        >
+          <div class="rating-stars">
+            <mat-icon
+              *ngFor="let icon of getStarIcons(product.averageRating)"
+              >{{ icon }}</mat-icon
+            >
+            <span class="rating-value">{{
+              product.averageRating | number : "1.1-1"
+            }}</span>
+          </div>
+          <p class="review-count">{{ product.reviewCount || 0 }} reviews</p>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Description -->
+        <h3>Description</h3>
+        <p class="product-description">{{ product.description }}</p>
+      </div>
+    </div>
+
+    <!-- Comment/Review Section -->
+    <div class="comment-section" *ngIf="currentUser">
+      <div class="comment-header" (click)="toggleCommentSection()">
+        <h3>
+          <mat-icon>rate_review</mat-icon>
+          Write a Review
+          <mat-icon>{{
+            isCommentExpanded ? "expand_less" : "expand_more"
+          }}</mat-icon>
+        </h3>
+      </div>
+
+      <div class="comment-form" *ngIf="isCommentExpanded">
+        <div class="user-info">
+          <div
+            *ngIf="currentUser.userImage; else initialsAvatar"
+            class="user-avatar-container"
+          >
+            <img
+              [src]="
+                'http://localhost:9191' + currentUser.userImage.downloadUrl
+              "
+              class="user-avatar"
+            />
+          </div>
+          <ng-template #initialsAvatar>
+            <div
+              class="initials-avatar"
+              [style.background-color]="getUserColor(currentUser)"
+            >
+              {{ getUserInitials(currentUser) }}
+            </div>
+          </ng-template>
+
+          <div>
+            <p class="user-name">
+              {{ currentUser.firstName }} {{ currentUser.lastName }}
+            </p>
+          </div>
+        </div>
+
+        <div class="rating-input">
+          <p>Your Rating:</p>
+          <div class="rating-stars">
+            <mat-icon
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="setRating(star)"
+            >
+              {{ star <= reviewRating ? "star" : "star_border" }}
+            </mat-icon>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Review Title</mat-label>
+          <input matInput [(ngModel)]="reviewTitle" maxlength="100" />
+          <mat-hint align="end">{{ reviewTitle.length }}/100</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Review</mat-label>
+          <textarea matInput [(ngModel)]="reviewContent" rows="5"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-button (click)="toggleCommentSection()">Cancel</button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="submitReview()"
+            [disabled]="
+              !reviewRating || !reviewTitle || !reviewContent || isSubmitting
+            "
+          >
+            <span *ngIf="!isSubmitting">Submit Review</span>
+            <span *ngIf="isSubmitting" class="d-flex align-items-center">
+              <mat-spinner diameter="20" class="me-2"></mat-spinner>
+              Submitting...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <mat-card class="reviews-card" *ngIf="getApprovedReviews().length > 0">
+      <mat-card-header>
+        <mat-card-title>Customer Reviews</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div *ngFor="let review of getApprovedReviews()" class="review-item">
+          <div class="review-header">
+            <!-- User Info -->
+            <div class="user-info">
+              <div
+                *ngIf="review.userDTO.userImage; else initialsAvatar"
+                class="user-avatar-container"
+              >
+                <img
+                  [src]="
+                    'http://localhost:9191' +
+                    review.userDTO.userImage.downloadUrl
+                  "
+                  class="user-avatar"
+                />
+              </div>
+              <ng-template #initialsAvatar>
+                <div
+                  class="initials-avatar"
+                  [style.background-color]="getUserColor(review.userDTO)"
+                >
+                  {{ getUserInitials(review.userDTO) }}
+                </div>
+              </ng-template>
+
+              <div>
+                <p class="user-name">
+                  {{ review.userDTO.firstName }} {{ review.userDTO.lastName }}
+                </p>
+                <div class="review-rating">
+                  <mat-icon *ngFor="let icon of getStarIcons(review.rating)">{{
+                    icon
+                  }}</mat-icon>
+                </div>
+              </div>
+            </div>
+            <p class="review-date">{{ review.createdAt | date }}</p>
+          </div>
+
+          <!-- Review Content -->
+          <h4 class="review-title">{{ review.title }}</h4>
+          <p class="review-content">{{ review.content }}</p>
+          <mat-divider></mat-divider>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- No Reviews Message -->
+    <div *ngIf="getApprovedReviews().length === 0" class="no-reviews">
+      <mat-icon>reviews</mat-icon>
+      <p>No reviews yet. Be the first to review this product!</p>
+    </div>
+  </div>
+</div>

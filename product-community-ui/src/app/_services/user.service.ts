@@ -79,7 +79,7 @@ export class UserService {
           // Save token and user data
           //localStorage.setItem('token', response.token);
           this.userAuth.setToken(response.token);
-          this.userAuth.setRoles('NORMAL');
+          this.userAuth.setRoles('ROLE_USER');
           const userId: number = Number(response.userId);
           this.userAuth.setUserId(userId);
           this.userAuth.setUserName(response.email);
@@ -97,7 +97,7 @@ export class UserService {
             panelClass: ['success-snackbar'],
           });
 
-          this.router.navigate(['/']);
+          this.router.navigate(['/products']);
         },
         error: (err) => {
           this.snackBar.open('Login failed. Please try again.', 'Close', {

@@ -1,0 +1,136 @@
+<!-- add-product.component.html -->
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <mat-card class="shadow-sm">
+        <mat-card-header>
+          <mat-card-title>Add New Product</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="mt-3">
+            <div class="row g-3">
+              <!-- Product Name -->
+              <div class="col-md-6">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Product Name</mat-label>
+                  <input matInput formControlName="name" required />
+                  <mat-error
+                    *ngIf="productForm.get('name')?.hasError('required')"
+                  >
+                    Product name is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Product Code -->
+              <div class="col-md-6">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Product Code</mat-label>
+                  <input matInput formControlName="code" required />
+                  <mat-error
+                    *ngIf="productForm.get('code')?.hasError('required')"
+                  >
+                    Product code is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Brand -->
+              <div class="col-md-6">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Brand</mat-label>
+                  <input matInput formControlName="brand" required />
+                  <mat-error
+                    *ngIf="productForm.get('brand')?.hasError('required')"
+                  >
+                    Brand is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Description -->
+              <div class="col-12">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Description</mat-label>
+                  <textarea
+                    matInput
+                    formControlName="description"
+                    rows="3"
+                    required
+                  ></textarea>
+                  <mat-error
+                    *ngIf="productForm.get('description')?.hasError('required')"
+                  >
+                    Description is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Image Upload -->
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label">Product Images</label>
+                  <div class="input-group">
+                    <input
+                      type="file"
+                      class="form-control"
+                      multiple
+                      (change)="onFileSelected($event)"
+                      accept="image/*"
+                    />
+                  </div>
+                  <small class="text-muted"
+                    >You can upload multiple images (JPEG, PNG)</small
+                  >
+                </div>
+
+                <!-- Preview Selected Images -->
+                <div class="row g-2" *ngIf="selectedFiles.length > 0">
+                  <div
+                    class="col-6 col-md-4 col-lg-3"
+                    *ngFor="let preview of imagePreviews; let i = index"
+                  >
+                    <div class="image-preview-container">
+                      <img [src]="preview" class="img-thumbnail" />
+                      <button
+                        mat-icon-button
+                        class="remove-image-btn"
+                        (click)="removeImage(i)"
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="router.navigate(['/products'])"
+              >
+                Cancel
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="isSubmitting"
+              >
+                <span *ngIf="!isSubmitting">Add Product</span>
+                <span *ngIf="isSubmitting" class="d-flex align-items-center">
+                  <mat-spinner diameter="20" class="me-2"></mat-spinner>
+                  Adding...
+                </span>
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

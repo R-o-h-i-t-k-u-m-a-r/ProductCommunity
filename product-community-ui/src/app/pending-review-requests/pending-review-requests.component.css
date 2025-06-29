@@ -1,0 +1,13 @@
+.table-responsive {
+  margin-top: 20px;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Add this to your global styles if you're using Angular Material */
+.mat-form-field {
+  width: 100%;
+}

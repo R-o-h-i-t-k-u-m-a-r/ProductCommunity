@@ -1,0 +1,64 @@
+<!-- review-request.component.html -->
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3>Request Product Review</h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="reviewRequestForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="productName" class="form-label">Product Name</label>
+              <input type="text" class="form-control" id="productName" 
+                     formControlName="productName" required>
+              <div *ngIf="reviewRequestForm.get('productName')?.invalid && 
+                          (reviewRequestForm.get('productName')?.dirty || 
+                           reviewRequestForm.get('productName')?.touched)"
+                   class="text-danger">
+                Product name is required
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productCode" class="form-label">Product Code</label>
+              <input type="text" class="form-control" id="productCode" 
+                     formControlName="productCode" required>
+              <div *ngIf="reviewRequestForm.get('productCode')?.invalid && 
+                          (reviewRequestForm.get('productCode')?.dirty || 
+                           reviewRequestForm.get('productCode')?.touched)"
+                   class="text-danger">
+                Product code is required
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productBrand" class="form-label">Product Brand</label>
+              <input type="text" class="form-control" id="productBrand" 
+                     formControlName="productBrand" required>
+              <div *ngIf="reviewRequestForm.get('productBrand')?.invalid && 
+                          (reviewRequestForm.get('productBrand')?.dirty || 
+                           reviewRequestForm.get('productBrand')?.touched)"
+                   class="text-danger">
+                Product brand is required
+              </div>
+            </div>
+
+            <div *ngIf="successMessage" class="alert alert-success">
+              {{ successMessage }}
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              {{ isLoading ? 'Submitting...' : 'Submit Request' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

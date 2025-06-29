@@ -24,6 +24,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { authInterceptor } from './_auth/auth.interceptor';
 import { MatDividerModule } from '@angular/material/divider';
+import {MatSelectModule} from '@angular/material/select';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -49,7 +50,8 @@ export const appConfig: ApplicationConfig = {
       MatListModule,
       MatChipsModule,
       MatDividerModule,
-      MatTooltipModule
+      MatTooltipModule,
+      MatSelectModule
     ),
   ],
 };

@@ -3,7 +3,7 @@
   class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm"
 >
   <div class="container-fluid">
-    <a *ngIf="!isAdminRole()" class="navbar-brand fw-bold" routerLink="/"
+    <a *ngIf="isUserRole()" class="navbar-brand fw-bold" routerLink="/products"
       >ProductCommunity</a
     >
 
@@ -27,10 +27,10 @@
           >
         </li>
         <li class="nav-item" *ngIf="isUserRole()">
-          <a class="nav-link fw-bold" routerLink="/user/cart">My Cart</a>
+          <a class="nav-link fw-bold" routerLink="/review-request">Request For Review</a>
         </li>
         <li class="nav-item" *ngIf="isUserRole()">
-          <a class="nav-link fw-bold" routerLink="/user/order">My Orders</a>
+          <a class="nav-link fw-bold" routerLink="/user-reviews">My Reviews</a>
         </li>
         <li class="nav-item" *ngIf="isAdminRole()">
           <a
@@ -42,13 +42,13 @@
           </a>
         </li>
         <li class="nav-item" *ngIf="isAdminRole()">
-          <a class="nav-link fw-bold" routerLink="/admin/category"
-            >Categories</a
+          <a class="nav-link fw-bold" routerLink="/admin/pending-reviews"
+            >Reviews</a
           >
         </li>
 
         <li class="nav-item" *ngIf="isAdminRole()">
-          <a class="nav-link fw-bold" routerLink="/order-info">Order Info</a>
+          <a class="nav-link fw-bold" routerLink="/pending-review-requests">Review Requests</a>
         </li>
       </ul>
 

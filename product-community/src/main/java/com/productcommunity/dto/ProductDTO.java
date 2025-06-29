@@ -2,7 +2,10 @@ package com.productcommunity.dto;
 
 
 import lombok.Data;
+
+
 import java.util.List;
+
 
 @Data
 public class ProductDTO {
@@ -11,6 +14,8 @@ public class ProductDTO {
     private String brand;
     private String code;
     private String description;
+    private Float averageRating;
+    private Integer reviewCount;
     private List<ProductImageDTO> images;
     private List<ReviewDTO> reviews;
 }

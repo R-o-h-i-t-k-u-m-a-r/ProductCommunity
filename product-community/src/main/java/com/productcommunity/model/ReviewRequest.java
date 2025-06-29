@@ -22,10 +22,6 @@ public class ReviewRequest {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -44,6 +40,9 @@ public class ReviewRequest {
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
 }
 
 

@@ -1,11 +1,14 @@
 package com.productcommunity.controller;
 
+import com.productcommunity.dto.ReviewRequestDTO;
 import com.productcommunity.dto.UserDTO;
+import com.productcommunity.exceptions.AlreadyExistsException;
 import com.productcommunity.exceptions.ResourceNotFoundException;
+import com.productcommunity.request.CreateReviewRequest;
 import com.productcommunity.request.ProductReviewRequest;
 import com.productcommunity.response.ApiResponse;
 import com.productcommunity.response.ReviewResponse;
-import com.productcommunity.service.review.ReviewService;
+import com.productcommunity.service.review.IReviewService;
 import com.productcommunity.service.user.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
@@ -31,7 +36,7 @@ import static org.springframework.http.HttpStatus.*;
 @Validated
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    private final IReviewService reviewService;
     private final IUserService userService;
 
     @PreAuthorize("hasRole('USER')")
@@ -108,19 +113,114 @@ public class ReviewController {
 
     // Admin endpoints
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{reviewId}/approve")
-    public ResponseEntity<ReviewResponse> approveReview(@PathVariable Long reviewId) {
-        ReviewResponse response = reviewService.approveReview(reviewId);
-        return ResponseEntity.ok(response);
+    @GetMapping("/{reviewId}/approve")
+    public ResponseEntity<ApiResponse> approveReview(@PathVariable Long reviewId) {
+        try {
+            ReviewResponse response = reviewService.approveReview(reviewId);
+            return ResponseEntity.ok(new ApiResponse("review created ", response));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        } catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{reviewId}/reject")
-    public ResponseEntity<ReviewResponse> rejectReview(
+    @GetMapping("/{reviewId}/reject")
+    public ResponseEntity<ApiResponse> rejectReview(
             @PathVariable Long reviewId,
             @RequestParam(required = false) String reason) {
-        ReviewResponse response = reviewService.rejectReview(reviewId, reason);
-        return ResponseEntity.ok(response);
+        try {
+            ReviewResponse response = reviewService.rejectReview(reviewId,reason);
+            return ResponseEntity.ok(new ApiResponse("review created ", response));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        } catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all/pending")
+    public ResponseEntity<ApiResponse> getAllPendingReviews(){
+        try {
+            List<ReviewResponse> reviewResponses = reviewService.allPendingReviews();
+            return ResponseEntity.ok(new ApiResponse("pending reviews fetched ", reviewResponses));
+        }catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/request-review")
+    public ResponseEntity<ApiResponse> requestProductReview(
+            @Valid @RequestBody CreateReviewRequest request) {
+        try {
+            ReviewRequestDTO reviewRequest = reviewService.requestProductReview(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("review quest created",reviewRequest));
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(CONFLICT).body(new ApiResponse(e.getMessage(), null));
+        }  catch (Exception e) {
+
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/request-review/all")
+    public ResponseEntity<ApiResponse> getAllRequestProductReviews(){
+        List<ReviewRequestDTO> allReviewRequests = reviewService.getAllReviewRequests();
+        return ResponseEntity.status(OK).body(new ApiResponse("Fetched all review requests",allReviewRequests));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/request-review/{reviewId}/approve")
+    public ResponseEntity<ApiResponse> approveReviewRequest(@PathVariable Long reviewId) {
+        try {
+            ReviewRequestDTO reviewRequestDTO = reviewService.approveRequestProductReview(reviewId);
+            return ResponseEntity.ok(new ApiResponse("review created ", reviewRequestDTO));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        } catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/request-review/{reviewId}/reject")
+    public ResponseEntity<ApiResponse> rejectReviewRequest(
+            @PathVariable Long reviewId,
+            @RequestParam(required = false) String reason) {
+        try {
+            ReviewRequestDTO reviewRequestDTO = reviewService.rejectRequestProductReview(reviewId);
+            return ResponseEntity.ok(new ApiResponse("review created ", reviewRequestDTO));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        } catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/request-review/all/pending")
+    public ResponseEntity<ApiResponse> getAllPendingReviewRequests(){
+        try {
+            List<ReviewRequestDTO> allPendingReviewRequests = reviewService.getAllPendingReviewRequests();
+            return ResponseEntity.ok(new ApiResponse("pending reviews fetched ", allPendingReviewRequests));
+        }catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/request-review/user/all")
+    public ResponseEntity<ApiResponse> getAllUserReviewRequests(){
+        try {
+            List<ReviewRequestDTO> allReviewRequests = reviewService.getUserAllRequestProductReview();
+            return ResponseEntity.ok(new ApiResponse("all reviews requests found ", allReviewRequests));
+        }catch (Exception e){
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
     }
 
 }

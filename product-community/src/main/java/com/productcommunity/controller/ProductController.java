@@ -3,6 +3,7 @@ package com.productcommunity.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.productcommunity.dto.ProductDTO;
+import com.productcommunity.dto.ProductInfoDto;
 import com.productcommunity.exceptions.AlreadyExistsException;
 import com.productcommunity.exceptions.ResourceNotFoundException;
 import com.productcommunity.model.Product;
@@ -10,12 +11,13 @@ import com.productcommunity.request.AddProductRequest;
 import com.productcommunity.response.ApiResponse;
 import com.productcommunity.service.product.IProductService;
 import com.productcommunity.service.productimage.IProductImageService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +37,16 @@ public class ProductController {
     private final IProductImageService productImageService;
     private final ObjectMapper objectMapper;
 
+    @GetMapping("product/all/info")
+    public ResponseEntity<ApiResponse> getAllProductsIfo(){
+        try {
+            List<ProductInfoDto> allProducts = productService.getAllProductsWithReviewStats();
+            return ResponseEntity.ok(new ApiResponse("success", allProducts));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
     @GetMapping("product/all")
     public ResponseEntity<ApiResponse> getAllProducts(){
         try {
@@ -45,7 +57,17 @@ public class ProductController {
         }
     }
 
-    @GetMapping("product/{productId}/product")
+    @GetMapping("product/all/approve/review")
+    public ResponseEntity<ApiResponse> getAllApprovedReviewsProducts(){
+        try {
+            List<ProductDTO> allProducts = productService.getAllApprovedReviewsProducts();
+            return ResponseEntity.ok(new ApiResponse("success", allProducts));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("productId/{productId}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
         try {
             Product product = productService.getProductById(productId);
@@ -67,35 +89,40 @@ public class ProductController {
         }
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
     public ResponseEntity<ApiResponse> createProduct(
-            HttpServletRequest request,
             @RequestPart("product") String productJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
-        //System.out.println("Actual Content-Type: " + request.getContentType());
-        //System.out.println("Raw JSON received: " + productJson);
-
         try {
-            // 1. Manually parse the JSON
-            AddProductRequest product = objectMapper.readValue(productJson, AddProductRequest.class);
-            Product savedProduct = productService.addProduct(product);
+            AddProductRequest productRequest = objectMapper.readValue(productJson, AddProductRequest.class);
+            Product savedProduct = productService.addProduct(productRequest);
 
-
-            // 2. Process the files if present
             if (images != null && !images.isEmpty()) {
+                // This will now work with the updated service method
                 productImageService.saveImages(savedProduct.getId(), images);
             }
 
-            ProductDTO productDto = productService.convertToDto(savedProduct);
-            return ResponseEntity.ok(new ApiResponse("Add product success!", productDto));
+            // Simplified DTO conversion
+            ProductDTO productDto = new ProductDTO();
+            productDto.setId(savedProduct.getId());
+            productDto.setName(savedProduct.getName());
+            productDto.setCode(savedProduct.getCode());
+            productDto.setBrand(savedProduct.getBrand());
+            productDto.setDescription(savedProduct.getDescription());
+
+            return ResponseEntity.ok(new ApiResponse("Product added successfully!", productDto));
+
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(CONFLICT).body(new ApiResponse(e.getMessage(), null));
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(BAD_REQUEST).body(new ApiResponse("Invalid JSON Format", null));
         } catch (Exception e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse("Internal Server Error", null));
+            log.error("Error adding product", e);
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(e.getMessage(), null));
         }
     }
 
@@ -160,5 +187,6 @@ public class ProductController {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
     }
+
 
 }

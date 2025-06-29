@@ -1,0 +1,33 @@
+<div class="banner-container">
+  <div class="banner-content">
+    <h1 class="banner-title">THE COMMUNITY</h1>
+    <p class="banner-subtitle">Find Solutions. Ask Questions. Share Ideas.</p>
+    <p class="banner-tagline">Connect with users across the world.</p>
+    
+    <div class="stats-container">
+      <div class="stat-item">
+        <mat-icon class="stat-icon">people</mat-icon>
+        <div class="stat-text">
+          <span class="stat-number">{{ stats.members.toLocaleString() }}</span>
+          <span class="stat-label">Members</span>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <mat-icon class="stat-icon">forum</mat-icon>
+        <div class="stat-text">
+          <span class="stat-number">{{ stats.posts.toLocaleString() }}</span>
+          <span class="stat-label">Posts</span>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <mat-icon class="stat-icon">wifi</mat-icon>
+        <div class="stat-text">
+          <span class="stat-number">{{ stats.online.toLocaleString() }}</span>
+          <span class="stat-label">Online</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

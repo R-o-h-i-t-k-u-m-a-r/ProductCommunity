@@ -58,6 +58,9 @@ public class Review {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
 }
 
 

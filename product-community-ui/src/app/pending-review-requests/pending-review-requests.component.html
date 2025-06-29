@@ -1,0 +1,51 @@
+<div class="container mt-4">
+  <h2>Pending Review Requests</h2>
+  
+  <div *ngIf="isLoading" class="text-center my-4">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && pendingRequests.length === 0" class="alert alert-info">
+    No pending review requests found.
+  </div>
+
+  <div class="table-responsive" *ngIf="pendingRequests.length > 0">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Product Name</th>
+          <th>Product Code</th>
+          <th>Brand</th>
+          <th>Requested By</th>
+          <th>Request Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of pendingRequests">
+          <td>{{ request.id }}</td>
+          <td>{{ request.productName }}</td>
+          <td>{{ request.productCode }}</td>
+          <td>{{ request.productBrand }}</td>
+          <td>{{ request.userDTO.firstName }} {{ request.userDTO.lastName }}</td>
+          <td>{{ formatDate(request.createdAt) }}</td>
+          <td>
+            <button class="btn btn-success btn-sm me-2" (click)="approveRequest(request.id)">
+              Approve
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="openRejectDialog(request.id)">
+              Reject
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

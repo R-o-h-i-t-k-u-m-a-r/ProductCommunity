@@ -1,0 +1,56 @@
+<div class="container py-4">
+  <h1>My Reviews</h1>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="mt-2">Loading your reviews...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <!-- No Reviews -->
+  <div *ngIf="!isLoading && reviewsPage?.empty" class="no-reviews">
+    <mat-icon>reviews</mat-icon>
+    <p>You haven't submitted any reviews yet</p>
+  </div>
+
+  <!-- Reviews List -->
+  <div *ngIf="!isLoading && reviewsPage && !reviewsPage.empty">
+    <div *ngFor="let review of reviewsPage.content" class="review-card">
+      <div class="review-header">
+        <div class="product-info">
+          <h3 class="product-name">{{ review.productName }}</h3>
+          <mat-chip [color]="getStatusColor(review.status)" class="status-chip">
+            {{ review.status }}
+          </mat-chip>
+        </div>
+        <div class="review-date">{{ review.createdAt | date }}</div>
+      </div>
+
+      <div class="review-rating">
+        <mat-icon *ngFor="let icon of getStarIcons(review.rating)">{{icon}}</mat-icon>
+      </div>
+
+      <h4 class="review-title">{{ review.title }}</h4>
+      <p class="review-content">{{ review.content }}</p>
+
+      <div *ngIf="review.status === 'REJECTED'" class="rejection-info">
+        <mat-icon>info</mat-icon>
+        <span>Last updated: {{ review.updatedAt | date }}</span>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator [length]="reviewsPage.totalElements"
+                   [pageSize]="pageSize"
+                   [pageIndex]="pageIndex"
+                   [pageSizeOptions]="[5, 10, 20]"
+                   (page)="onPageChange($event)"
+                   aria-label="Select page">
+    </mat-paginator>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+ <h2 mat-dialog-title>Reject Review</h2>
+    <mat-dialog-content>
+      <p>Please provide a reason for rejecting this review (optional):</p>
+      <mat-form-field appearance="outline" class="w-full">
+        <textarea matInput [(ngModel)]="reason" placeholder="Reason for rejection"></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="warn" (click)="onReject()">Reject</button>
+    </mat-dialog-actions>

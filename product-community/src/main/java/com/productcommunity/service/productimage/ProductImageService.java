@@ -9,6 +9,7 @@ import com.productcommunity.service.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +39,55 @@ public class ProductImageService implements IProductImageService{
         });
     }
 
+//    @Override
+//    @Transactional
+//    public List<ProductImageDTO> saveImages(Long productId, List<MultipartFile> files) {
+//        Product product = productService.getProductById(productId);
+//
+//        List<ProductImageDTO> savedImageDto = new ArrayList<>();
+//        for (MultipartFile file : files) {
+//            try {
+//                ProductImage image = new ProductImage();
+//                image.setFileName(file.getOriginalFilename());
+//                image.setFileType(file.getContentType());
+//                image.setImage(new SerialBlob(file.getBytes()));
+//                image.setProduct(product);
+//
+//                // Save image first to get ID
+//                ProductImage savedImage = imageRepository.save(image);
+//
+//                // Now that ID is available, build and set download URL
+//                String downloadUrl = "/api/v1/images/image/download/" + savedImage.getId();
+//                savedImage.setDownloadUrl(downloadUrl);
+//
+//                // Save again with updated download URL
+//                savedImage = imageRepository.save(savedImage);
+//
+//                // Convert to DTO
+//                ProductImageDTO imageDto = new ProductImageDTO();
+//                imageDto.setId(savedImage.getId());
+//                imageDto.setFileName(savedImage.getFileName());
+//                imageDto.setDownloadUrl(savedImage.getDownloadUrl());
+//                savedImageDto.add(imageDto);
+//
+//            }   catch(IOException | SQLException e){
+//                e.printStackTrace();
+//                throw new RuntimeException(e.getMessage());
+//            }
+//        }
+//        return savedImageDto;
+//    }
+
+
+
     @Override
+    @Transactional
     public List<ProductImageDTO> saveImages(Long productId, List<MultipartFile> files) {
         Product product = productService.getProductById(productId);
 
-        List<ProductImageDTO> savedImageDto = new ArrayList<>();
+        // Create a new list to avoid modifying the persistent collection directly
+        List<ProductImage> newImages = new ArrayList<>();
+
         for (MultipartFile file : files) {
             try {
                 ProductImage image = new ProductImage();
@@ -49,25 +95,36 @@ public class ProductImageService implements IProductImageService{
                 image.setFileType(file.getContentType());
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
-
-                String buildDownloadUrl = "/api/v1/images/image/download/";
-                String downloadUrl = buildDownloadUrl+image.getId();
-                image.setDownloadUrl(downloadUrl);
-                ProductImage savedImage = imageRepository.save(image);
-
-                savedImage.setDownloadUrl(buildDownloadUrl+savedImage.getId());
-                imageRepository.save(savedImage);
-
-                ProductImageDTO imageDto = new ProductImageDTO();
-                imageDto.setId(savedImage.getId());
-                imageDto.setFileName(savedImage.getFileName());
-                imageDto.setDownloadUrl(savedImage.getDownloadUrl());
-                savedImageDto.add(imageDto);
-
-            }   catch(IOException | SQLException e){
-                throw new RuntimeException(e.getMessage());
+                newImages.add(image);
+            } catch(IOException | SQLException e) {
+                throw new RuntimeException("Failed to process image: " + e.getMessage());
             }
         }
-        return savedImageDto;
+
+        // Save all images at once
+        List<ProductImage> savedImages = imageRepository.saveAll(newImages);
+
+        // Update download URLs
+        List<ProductImage> updatedImages = savedImages.stream()
+                .map(image -> {
+                    String downloadUrl = "/api/v1/images/image/download/" + image.getId();
+                    image.setDownloadUrl(downloadUrl);
+                    return image;
+                })
+                .collect(Collectors.toList());
+
+        // Save updated images
+        imageRepository.saveAll(updatedImages);
+
+        // Convert to DTOs
+        return updatedImages.stream()
+                .map(image -> {
+                    ProductImageDTO dto = new ProductImageDTO();
+                    dto.setId(image.getId());
+                    dto.setFileName(image.getFileName());
+                    dto.setDownloadUrl(image.getDownloadUrl());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

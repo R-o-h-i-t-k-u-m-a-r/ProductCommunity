@@ -1,0 +1,61 @@
+<div class="container py-4">
+  <h1>Pending Reviews</h1>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="mt-2">Loading pending reviews...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <!-- No Pending Reviews -->
+  <div *ngIf="!isLoading && pendingReviews.length === 0" class="no-reviews">
+    <mat-icon>check_circle</mat-icon>
+    <p>No pending reviews to moderate</p>
+  </div>
+
+  <!-- Pending Reviews List -->
+  <div *ngIf="!isLoading && pendingReviews.length > 0">
+    <div *ngFor="let review of pendingReviews" class="review-card">
+      <div class="review-header">
+        <div class="user-info">
+          <div *ngIf="review.userAvatar; else initialsAvatar" class="user-avatar-container">
+            <img [src]="'http://localhost:9191' + review.userAvatar" class="user-avatar">
+          </div>
+          <ng-template #initialsAvatar>
+            <div class="initials-avatar" [style.background-color]="getUserColor(review.userId)">
+              {{ getUserInitials(review.userName) }}
+            </div>
+          </ng-template>
+          
+          <div>
+            <p class="user-name">{{ review.userName }}</p>
+            <p class="product-name">Product: {{ review.productName }}</p>
+          </div>
+        </div>
+        
+        <div class="review-date">{{ review.createdAt | date }}</div>
+      </div>
+
+      <div class="review-rating">
+        <mat-icon *ngFor="let icon of getStarIcons(review.rating)">{{icon}}</mat-icon>
+      </div>
+
+      <h4 class="review-title">{{ review.title }}</h4>
+      <p class="review-content">{{ review.content }}</p>
+
+      <div class="review-actions">
+        <button mat-raised-button color="primary" (click)="approveReview(review.id)">
+          <mat-icon>check</mat-icon> Approve
+        </button>
+        <button mat-raised-button color="warn" (click)="openRejectDialog(review.id)">
+          <mat-icon>close</mat-icon> Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

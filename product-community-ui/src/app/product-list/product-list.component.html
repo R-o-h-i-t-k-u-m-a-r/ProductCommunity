@@ -1,0 +1,106 @@
+<div class="container-fluid py-4">
+  <!-- Search and Filter Section -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+      <form
+        [formGroup]="searchForm"
+        (ngSubmit)="searchProducts(); searchForm.reset()"
+        class="search-filter-form"
+      >
+        <div class="search-input-container">
+          <div class="input-wrapper">
+            <input
+              type="text"
+              formControlName="searchTerm"
+              placeholder="Enter product name, code or brand"
+            />
+            <span class="search-icon">🔍</span>
+          </div>
+        </div>
+
+        <div class="select-filter-container">
+          <select formControlName="filterBy">
+            <option value="name">Name</option>
+            <option value="code">Code</option>
+            <option value="brand">Brand</option>
+          </select>
+        </div>
+
+        <button type="submit" class="search-button">Search</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner"></div>
+    <p class="mt-2">Loading products...</p>
+  </div>
+
+  <!-- Products Grid -->
+  <div
+    *ngIf="!isLoading"
+    class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
+  >
+    <div class="col" *ngFor="let product of filteredProducts">
+      <div
+        class="card h-100 product-card"
+        (click)="viewProductDetails(product.id)"
+      >
+        <div class="card-img-container">
+          <img
+            [src]="
+              'http://localhost:9191' + product.images[0].downloadUrl ||
+              'assets/default-product.png'
+            "
+            class="card-img"
+            alt="{{ product.name }}"
+          />
+          <div class="rating-badge">
+            <span class="badge">
+              <span class="star-container">
+                <span
+                  *ngFor="let star of [1, 2, 3, 4, 5]"
+                  class="material-icons"
+                >
+                  {{ getStarIcon(star, product.avgRating) }}
+                </span>
+              </span>
+              <!-- {{ (product.avgRating || 0).toFixed(1) }} -->
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ product.name }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ product.brand }}</h6>
+          <p class="card-text text-truncate">{{ product.description }}</p>
+        </div>
+        <div class="card-footer bg-transparent">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">Code: {{ product.code }}</small>
+            <small class="text-muted">
+              TotalReviews:
+              {{ product.totalReveiws || 0 }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts.length === 0 && !isLoading" class="col-12">
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div class="empty-icon">🔍</div>
+          <h4>No products found</h4>
+          <p class="text-muted">Try adjusting your search criteria</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
